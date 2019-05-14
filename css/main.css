@@ -1,0 +1,64 @@
+body,
+body * {
+    margin: 0;
+    padding: 0;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+.container {
+    padding: 80px;
+    text-align: center;
+}
+
+#game {
+    display: inline-block;
+    border: 1px solid #999;
+    box-shadow: 0 0 8px #CCC;
+}
+    #game > header {
+        display: inline-block;
+        width: 100%;
+        padding: 10px 0;
+        border-bottom: 1px solid #999;
+        font-size: 20px;
+        line-height: 30px;
+        text-align: center;
+    }
+        #game > header > div {
+            display: inline-block;
+        }
+        #game > header > .bombs {
+            width: 90px;
+            float: left;
+        }
+        #game > header > .smile {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            transform: rotate(90deg);
+            background: rgb(219, 219, 0);
+            color: #333;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+            .smile::selection {
+                background: inherit; /* WebKit/Blink Browsers */
+            }
+            .smile::-moz-selection {
+                background: inherit; /* Gecko Browsers */
+            }
+        #game > header > .clock {
+            width: 90px;
+            float: right;
+        }
+    #game > .board {
+        display: inline-block;
+        width: 100%;
+    }
+        #game > .board > .cell {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 1px solid #CCC;
+        }
