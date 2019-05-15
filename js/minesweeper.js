@@ -31,8 +31,23 @@ board.querySelectorAll('.cell').forEach( cell => {
 
 // funkcijos
 function resetGame() {
-    console.log('reset');
-    
+    if ( bombCount <= 0 ) {
+        console.error('Reikia bent vienos bombos.');
+        return;
+    }
+    if ( boardSize.x < 1 && boardSize.y < 1 ) {
+        console.error('Lenta negali tureti maziau nei po 1 langeli stulpelyje ir eiluteje.');
+        return;
+    }
+    if ( boardSize.x * boardSize.y < 2 ) {
+        console.error('Lenta negali buti mazesne nei 2 langaliu.');
+        return;
+    }
+    if ( boardSize.x * boardSize.y <= bombCount ) {
+        console.error('Bombu yra per daug, jog tilptu i lenta.');
+        return;
+    }
+
     bombCounter.innerText = bombCount;
     clock.innerText = '000';
     smile.innerText = ':)';
@@ -43,24 +58,34 @@ function resetGame() {
 
 function renderEmptyCells() {
     var HTML = '';
+        cellState = [],
+        cell = {};
     for ( var i=0; i<(boardSize.x * boardSize.y); i++ ) {
-        HTML += '<div class="cell"></div>';
+        HTML += '<div id="c'+i+'" class="cell"></div>';
+        cell = {
+            x: i % boardSize.x,
+            y: (i - (i % boardSize.x)) / boardSize.x,
+            bomb: false,
+            flag: false,
+            open: false,
+            number: null
+        };
+        cellState.push(cell);
     }
+    
     return HTML;
 }
 
 function handleCellClick( event ) {
     var cellIndex = childIndex(event.path[0]);
 
-    console.log(cellIndex);
-
     switch ( gameState ) {
         case 'start':
-            gameFirstClick();
+            gameFirstClick( cellIndex );
             break;
     
         case 'inprogress':
-            gameInProgressClick();
+            gameInProgressClick( cellIndex );
             break;
 
         case 'victory':
@@ -74,9 +99,6 @@ function handleCellClick( event ) {
         default:
             break;
     }
-
-    console.log( gameState );
-    
     return;
 }
 
@@ -86,8 +108,16 @@ function childIndex( elem ){
     return i;
 }
 
-function gameFirstClick() {    // generuojame bombu sarasa, isskyrus paspaustame langelyje
+function gameFirstClick( clickedCellIndex ) {
+    console.log('gameFirstClick: ' + clickedCellIndex);
+    
+    // generuojame bombu sarasa, isskyrus paspaustame langelyje
+    generataRandomBombs( clickedCellIndex );
+
     // likusiuose langeliuose suskaiciuojame aplinkiniu bombu kieki
+    countSurroundingBombs();
+    cheatMode();
+
     // atidenginejame langelius, nuo paspaustoje vietos
     // paleidziame laikrodi
     // atnaujiname zaidimo busena
@@ -95,7 +125,9 @@ function gameFirstClick() {    // generuojame bombu sarasa, isskyrus paspaustame
     return;
 }
 
-function gameInProgressClick(){
+function gameInProgressClick( clickedCellIndex ){
+    console.log('gameInProgressClick: '+ clickedCellIndex);
+    
     // ar langelyje yra bomba
         // jei yra:
             // parodome visas likusias bombas
@@ -120,8 +152,87 @@ function gameInProgressClick(){
     return;
 }
 
-// return
+function generataRandomBombs( clickedCellIndex ) {
+    var randomIndex = 0;
+    for ( var i=0; i<bombCount; i++ ) {
+        randomIndex = Math.floor(Math.random() * boardSize.x * boardSize.y);
+        if ( clickedCellIndex !== randomIndex &&
+             cellState[randomIndex].bomb === false ) {
+            cellState[randomIndex].bomb = true;
+        } else {
+            i--;
+        }
+    }
 
+    console.log( cellState );
+    
+    
+    return;
+}
+
+function countSurroundingBombs() {
+    var c;
+    for ( var i=0; i<(boardSize.x * boardSize.y); i++ ) {
+        // skaiciuojame langeliuose, kuriuose nera bombos
+        c = cellState[i];
+        if ( c.bomb === false ) {
+            cellState[i].number = 0;
+            // top left
+            if ( (c.x - 1) >= 0 && (c.y - 1) >= 0 && cellState[ (c.x - 1) * (c.y - 1) ].bomb === true ) {
+                cellState[i].number++;
+            }
+            // top
+            if ( (c.y - 1) >= 0 && cellState[ (c.x) * (c.y - 1) ].bomb === true ) {
+                cellState[i].number++;
+            }
+            // top right
+            if ( (c.x + 1) < boardSize.x && (c.y - 1) >= 0 && cellState[ (c.x + 1) * (c.y - 1) ].bomb === true ) {
+                cellState[i].number++;
+            }
+            // right
+            if ( (c.x + 1) < boardSize.x && cellState[ (c.x + 1) * (c.y) ].bomb === true ) {
+                cellState[i].number++;
+            }
+            // bottom right
+            if ( (c.x + 1) < boardSize.x && (c.y + 1) < boardSize.y && cellState[ (c.x + 1) * (c.y + 1) ].bomb === true ) {
+                cellState[i].number++;
+            }
+            // bottom
+            if ( (c.y + 1) < boardSize.y && cellState[ (c.x) * (c.y + 1) ].bomb === true ) {
+                cellState[i].number++;
+            }
+            // bottom left
+            if ( (c.x - 1) >= 0 && (c.y + 1) < boardSize.y && cellState[ (c.x - 1) * (c.y + 1) ].bomb === true ) {
+                cellState[i].number++;
+            }
+            // left
+            if ( (c.x - 1) >= 0 && cellState[ (c.x - 1) * (c.y) ].bomb === true ) {
+                cellState[i].number++;
+            }
+        }
+    }
+    return;
+}
+
+
+
+function cheatMode() {
+    for ( var i=0; i<boardSize.x * boardSize.y; i++ ) {
+        if ( cellState[i].bomb === true ) {
+            board.querySelector('#c'+i).innerHTML = 'B';
+        } else {
+            if ( cellState[i].number > 0 ) {
+                board.querySelector('#c'+i).innerHTML = cellState[i].number;
+            }
+        }
+    }
+    return;
+}
+
+// return
+return {
+    cheatMode: cheatMode
+}
 
 
 
