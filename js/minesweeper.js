@@ -4,12 +4,13 @@ var minesweeper = (function(){
 
 // kintamieji
 var boardSize = {
-        x: 10,
+        x: 16,
         y: 10
     },
-    bombCount = 5,
+    bombCount = 15,
     gameState = 'start',    // start / inprogress / victory / gameover
-    cellState = [];
+    cellState = [],
+    cellWidth = 16;
 
 // DOM cache
 var game = document.querySelector('#game'),
@@ -54,7 +55,7 @@ function resetGame() {
     });
 
     board.innerHTML = renderEmptyCells();
-    game.style.width = (30 * boardSize.x + 2)+'px';
+    game.style.width = (cellWidth * boardSize.x + 2)+'px';
     gameState = 'start';
 
     board.querySelectorAll('.cell').forEach( cell => {
@@ -133,30 +134,33 @@ function gameFirstClick( clickedCellIndex ) {
     return;
 }
 
-function gameInProgressClick( clickedCellIndex ){
-    console.log('gameInProgressClick: '+ clickedCellIndex);
-    
+function gameInProgressClick( cellIndex ){
     // ar langelyje yra bomba
-        // jei yra:
-            // parodome visas likusias bombas
-            // sustabdome laikrodi
-            // atnaujiname zaidimo busena
-            gameState = 'gameover';
+    if ( cellState[cellIndex].bomb === true ) {
+        // parodome visas likusias bombas
+        showBombs( cellIndex );
 
-        // jei nera:
-            // atidengiame einamaji langeli
-            // jeigu skaicius yra nulis, tai atidengiame aplinkinius
-                // kartojame procesa, kol:
-                    // tame langelyje nera lygu nuliui
-                    // pasiektas lentos krastas
-                    // jei langelis su velevele - jo neliesti
+        // sustabdome laikrodi
+
+        // pakeisti smile
+        smile.innerText = ';(';
+        // atnaujiname zaidimo busena
+        gameState = 'gameover';
+    } else {
+        openCell( cellIndex );
+    }
+
     
     // tikriname ar atidaryti visi langeliai kurie neturi bombu
-        // jei taip:
-            // atnaujiname zaidimo busena
-            gameState = 'victory';
-        // jei ne:
-            // tesiam zaidima
+    if ( notOpenedCells() === 0 ) {
+        // atnaujiname zaidimo busena
+        gameState = 'victory';
+
+        smile.innerText = ':D';
+
+    } else {
+        // tesiam zaidima
+    }
     return;
 }
 
@@ -238,8 +242,55 @@ function cheatMode() {
 }
 
 function openCell( cellIndex ) {
-    
+    var c = cellState[cellIndex],
+        coordinate = 0;
+
+    // atidengiame einamaji langeli
+    board.querySelector('#c'+cellIndex).classList += ' c-'+c.number;
+    cellState[cellIndex].open = true;
+
+    // jeigu skaicius yra nulis, tai atidengiame aplinkinius
+    if ( c.number === 0 ) {
+        // kartojame procesa, kol:
+            // tame langelyje nera lygu nuliui
+            // pasiektas lentos krastas
+            // jei langelis su velevele - jo neliesti
+        for ( var x=-1; x<2; x++ ) {
+            for ( var y=-1; y<2; y++ ) {
+                // tikriname aplinkinius langelius, ar jie egzistuoja lentoje
+                if ( c.x + x >= 0 && c.x + x < boardSize.x &&
+                     c.y + y >= 0 && c.y + y < boardSize.y ) {
+                    coordinate = (c.x + x) + boardSize.x * (c.y + y);
+                    if ( cellState[ coordinate ].open === false ) {
+                        openCell( coordinate );
+                    }
+                }
+            }
+        }
+    }
     return;
+}
+
+function showBombs( cellDetonated ) {
+    for ( var i=0; i<boardSize.x * boardSize.y; i++ ) {
+        if ( cellState[i].bomb === true ) {
+            board.querySelector('#c'+i).innerHTML = '';
+        }
+    }
+
+    // paryskinti bomba, del kurios ivyko sprogimas (prideti klase: detonated)
+    board.querySelector('#c'+cellDetonated).className += " detonated"
+
+    return;
+}
+
+function notOpenedCells() {
+    for ( var i=0; i<boardSize.x * boardSize.y; i++ ) {
+        if ( cellState[i].open === false && cellState[i].bomb === false ) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 // return

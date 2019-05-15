@@ -4,6 +4,7 @@ body * {
     padding: 0;
     vertical-align: top;
     box-sizing: border-box;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 .container {
@@ -36,6 +37,7 @@ body * {
             width: 30px;
             height: 30px;
             text-align: center;
+            line-height: 29px;
             transform: rotate(90deg);
             background: rgb(219, 219, 0);
             color: #333;
@@ -58,7 +60,56 @@ body * {
     }
         #game > .board > .cell {
             display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 1px solid #CCC;
+            width: 16px;
+            height: 16px;
+            float: left;
+            background-image: url(../img/sprite100.gif);
+            background-position-x: 0px;
+            background-position-y: -39px;
+        }
+        #game > .board > .cell::selection {
+            background: inherit; /* WebKit/Blink Browsers */
+        }
+        #game > .board > .cell::-moz-selection {
+            background: inherit; /* Gecko Browsers */
+        }
+        #game > .board > .cell.detonated {
+            background-position-x: -32px;
+            background-position-y: -39px;
+        }
+        #game > .board > .cell.c-0 {
+            background-position-x: 0px;
+            background-position-y: -23px;
+        }
+        #game > .board > .cell.c-1 {
+            background-position-x: -16px;
+            background-position-y: -23px;
+        }
+        #game > .board > .cell.c-2 {
+            background-position-x: -32px;
+            background-position-y: -23px;
+        }
+        #game > .board > .cell.c-3 {
+            background-position-x: -48px;
+            background-position-y: -23px;
+        }
+        #game > .board > .cell.c-4 {
+            background-position-x: -64px;
+            background-position-y: -23px;
+        }
+        #game > .board > .cell.c-5 {
+            background-position-x: -80px;
+            background-position-y: -23px;
+        }
+        #game > .board > .cell.c-6 {
+            background-position-x: -96px;
+            background-position-y: -23px;
+        }
+        #game > .board > .cell.c-7 {
+            background-position-x: -112px;
+            background-position-y: -23px;
+        }
+        #game > .board > .cell.c-8 {
+            background-position-x: -128px;
+            background-position-y: -23px;
         }
