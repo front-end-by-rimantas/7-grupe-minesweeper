@@ -7,7 +7,7 @@ var boardSize = {
         x: 10,
         y: 10
     },
-    bombCount = 10,
+    bombCount = 5,
     gameState = 'start',    // start / inprogress / victory / gameover
     cellState = [];
 
@@ -24,10 +24,6 @@ resetGame();
 
 // event
 smile.addEventListener('click', resetGame);
-
-board.querySelectorAll('.cell').forEach( cell => {
-    cell.addEventListener('click', handleCellClick);
-});
 
 // funkcijos
 function resetGame() {
@@ -51,8 +47,19 @@ function resetGame() {
     bombCounter.innerText = bombCount;
     clock.innerText = '000';
     smile.innerText = ':)';
+
+    // isvalome eventListener'ius nuo buvusio zaidimo sesijos
+    board.querySelectorAll('.cell').forEach( cell => {
+        cell.removeEventListener('click', handleCellClick);
+    });
+
     board.innerHTML = renderEmptyCells();
     game.style.width = (30 * boardSize.x + 2)+'px';
+    gameState = 'start';
+
+    board.querySelectorAll('.cell').forEach( cell => {
+        cell.addEventListener('click', handleCellClick);
+    });
     return;
 }
 
@@ -116,9 +123,10 @@ function gameFirstClick( clickedCellIndex ) {
 
     // likusiuose langeliuose suskaiciuojame aplinkiniu bombu kieki
     countSurroundingBombs();
-    cheatMode();
 
     // atidenginejame langelius, nuo paspaustoje vietos
+    openCell( clickedCellIndex );
+
     // paleidziame laikrodi
     // atnaujiname zaidimo busena
     gameState = 'inprogress';
@@ -178,35 +186,35 @@ function countSurroundingBombs() {
         if ( c.bomb === false ) {
             cellState[i].number = 0;
             // top left
-            if ( (c.x - 1) >= 0 && (c.y - 1) >= 0 && cellState[ (c.x - 1) * (c.y - 1) ].bomb === true ) {
+            if ( (c.x - 1) >= 0 && (c.y - 1) >= 0 && cellState[ (c.x - 1) + boardSize.x * (c.y - 1) ].bomb === true ) {
                 cellState[i].number++;
             }
             // top
-            if ( (c.y - 1) >= 0 && cellState[ (c.x) * (c.y - 1) ].bomb === true ) {
+            if ( (c.y - 1) >= 0 && cellState[ (c.x) + boardSize.x * (c.y - 1) ].bomb === true ) {
                 cellState[i].number++;
             }
             // top right
-            if ( (c.x + 1) < boardSize.x && (c.y - 1) >= 0 && cellState[ (c.x + 1) * (c.y - 1) ].bomb === true ) {
+            if ( (c.x + 1) < boardSize.x && (c.y - 1) >= 0 && cellState[ (c.x + 1) + boardSize.x * (c.y - 1) ].bomb === true ) {
                 cellState[i].number++;
             }
             // right
-            if ( (c.x + 1) < boardSize.x && cellState[ (c.x + 1) * (c.y) ].bomb === true ) {
+            if ( (c.x + 1) < boardSize.x && cellState[ (c.x + 1) + boardSize.x * (c.y) ].bomb === true ) {
                 cellState[i].number++;
             }
             // bottom right
-            if ( (c.x + 1) < boardSize.x && (c.y + 1) < boardSize.y && cellState[ (c.x + 1) * (c.y + 1) ].bomb === true ) {
+            if ( (c.x + 1) < boardSize.x && (c.y + 1) < boardSize.y && cellState[ (c.x + 1) + boardSize.x * (c.y + 1) ].bomb === true ) {
                 cellState[i].number++;
             }
             // bottom
-            if ( (c.y + 1) < boardSize.y && cellState[ (c.x) * (c.y + 1) ].bomb === true ) {
+            if ( (c.y + 1) < boardSize.y && cellState[ (c.x) + boardSize.x * (c.y + 1) ].bomb === true ) {
                 cellState[i].number++;
             }
             // bottom left
-            if ( (c.x - 1) >= 0 && (c.y + 1) < boardSize.y && cellState[ (c.x - 1) * (c.y + 1) ].bomb === true ) {
+            if ( (c.x - 1) >= 0 && (c.y + 1) < boardSize.y && cellState[ (c.x - 1) + boardSize.x * (c.y + 1) ].bomb === true ) {
                 cellState[i].number++;
             }
             // left
-            if ( (c.x - 1) >= 0 && cellState[ (c.x - 1) * (c.y) ].bomb === true ) {
+            if ( (c.x - 1) >= 0 && cellState[ (c.x - 1) + boardSize.x * (c.y) ].bomb === true ) {
                 cellState[i].number++;
             }
         }
@@ -229,9 +237,15 @@ function cheatMode() {
     return;
 }
 
+function openCell( cellIndex ) {
+    
+    return;
+}
+
 // return
 return {
-    cheatMode: cheatMode
+    cheatMode: cheatMode,
+    gameState: gameState
 }
 
 
